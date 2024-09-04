@@ -1,20 +1,20 @@
-import { useCallback } from "react";
-
-let animationFrame: number | null = null;
-let lastTimestamp = 0;
+import { useCallback, useRef } from "react";
 
 export const useAnimation = (speed: number, onAnimate: () => void) => {
+  const animationFrame = useRef<number | null>(null);
+  const lastTimestamp = useRef<number>(0);
+
   const loopAnimation = useCallback(
     (timestamp: number) => {
-      animationFrame = window.requestAnimationFrame(loopAnimation);
+      animationFrame.current = window.requestAnimationFrame(loopAnimation);
 
-      const timeElapsed = (timestamp - lastTimestamp) / 1000;
+      const timeElapsed = (timestamp - lastTimestamp.current) / 1000;
 
       if (timeElapsed < 1 / speed) {
         return;
       }
 
-      lastTimestamp = timestamp;
+      lastTimestamp.current = timestamp;
 
       onAnimate();
     },
@@ -22,12 +22,12 @@ export const useAnimation = (speed: number, onAnimate: () => void) => {
   );
 
   const start = useCallback(() => {
-    animationFrame = window.requestAnimationFrame(loopAnimation);
+    animationFrame.current = window.requestAnimationFrame(loopAnimation);
   }, [loopAnimation]);
 
   const stop = useCallback(() => {
-    if (animationFrame) {
-      window.cancelAnimationFrame(animationFrame);
+    if (animationFrame.current) {
+      window.cancelAnimationFrame(animationFrame.current);
     }
   }, []);
 

@@ -11,27 +11,32 @@ const GameBoard: FC<{
   onGameEnded?: () => void;
 }> = ({ className, onGameEnded }) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
+  const [blinkingToggle, setBlinkingToggle] = useState(false);
   const { canvasRef, canvasInfo, drawObjects, drawScore, clearCanvas } =
     useCanvasDrawing();
   const { snake, loot, hasColided, score, moveSnake, setDirection } =
     useSnake(canvasInfo);
-
-  useEffect(() => {
-    if (hasColided) {
-      setGameStatus("Ended");
-    }
-
-    clearCanvas();
-    drawObjects([loot], "orange");
-    drawObjects(snake, "green");
-    drawScore(score);
-  }, [snake, loot, hasColided, score, drawScore, drawObjects, clearCanvas]);
 
   const updateSnakePosition = useCallback(() => {
     moveSnake();
   }, [moveSnake]);
 
   const { start, stop } = useAnimation(10, updateSnakePosition);
+
+  useEffect(() => {
+    clearCanvas();
+    drawObjects([loot], "orange");
+    if (!blinkingToggle) {
+      drawObjects(snake, "green");
+    }
+    drawScore(score);
+  }, [snake, loot, blinkingToggle, score, drawScore, drawObjects, clearCanvas]);
+
+  useEffect(() => {
+    if (hasColided) {
+      setGameStatus("Ended");
+    }
+  }, [hasColided]);
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -70,6 +75,17 @@ const GameBoard: FC<{
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
+  const endGame = useCallback(() => {
+    const intervalId = window.setInterval(() => {
+      setBlinkingToggle((prev) => !prev);
+    }, 150);
+
+    setTimeout(() => {
+      window.clearInterval(intervalId);
+      onGameEnded?.();
+    }, 2000);
+  }, [onGameEnded]);
+
   useEffect(() => {
     switch (gameStatus) {
       case "InProgress":
@@ -80,12 +96,10 @@ const GameBoard: FC<{
         break;
       case "Ended":
         stop();
-        setTimeout(() => {
-          onGameEnded?.();
-        }, 2000);
+        endGame();
         break;
     }
-  }, [gameStatus, start, stop, onGameEnded]);
+  }, [gameStatus, start, stop, endGame]);
 
   return (
     <div className={className}>
