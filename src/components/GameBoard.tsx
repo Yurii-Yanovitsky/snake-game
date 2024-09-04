@@ -11,9 +11,9 @@ const GameBoard: FC<{
   onGameEnded?: () => void;
 }> = ({ className, onGameEnded }) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
-  const { canvasRef, canvasInfo, drawObjects, clearCanvas } =
+  const { canvasRef, canvasInfo, drawObjects, drawScore, clearCanvas } =
     useCanvasDrawing();
-  const { snake, loot, hasColided, moveSnake, setDirection } =
+  const { snake, loot, hasColided, score, moveSnake, setDirection } =
     useSnake(canvasInfo);
 
   useEffect(() => {
@@ -24,7 +24,8 @@ const GameBoard: FC<{
     clearCanvas();
     drawObjects([loot], "orange");
     drawObjects(snake, "green");
-  }, [snake, loot, hasColided, drawObjects, clearCanvas]);
+    drawScore(score);
+  }, [snake, loot, hasColided, score, drawScore, drawObjects, clearCanvas]);
 
   const updateSnakePosition = useCallback(() => {
     moveSnake();

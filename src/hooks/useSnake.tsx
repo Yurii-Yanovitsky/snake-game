@@ -12,9 +12,10 @@ import { getRandomPosition } from "../utils";
 const INIT_SNAKE_LENGTH_CELLS = 4;
 
 export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
+  const [score, setScore] = useState(0);
   const directionRef = useRef({ x: -1, y: 0 });
   const [loot, setLoot] = useState<IObjectBody>({ x: 0, y: 0 });
-  const [snake, setSnake] = useState<IObjectBody[]>([{ x: 0, y: 0 }]);
+  const [snake, setSnake] = useState<IObjectBody[]>([{ x: -1, y: -1 }]);
   const [hasColided, setHasColided] = useState(false);
 
   const spawnLoot = useCallback(() => {
@@ -81,8 +82,9 @@ export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
     if (equalPositions(snake[0], loot)) {
       growSnake();
       spawnLoot();
+      setScore((prevVal) => prevVal + 10);
     }
   }, [loot, snake, spawnLoot, growSnake]);
 
-  return { loot, snake, hasColided, moveSnake, setDirection };
+  return { score, loot, snake, hasColided, moveSnake, setDirection };
 };

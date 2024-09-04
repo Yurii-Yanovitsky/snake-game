@@ -47,7 +47,6 @@ export const useCanvasDrawing = () => {
       if (context) {
         context.save();
         context.beginPath();
-
         context.lineCap = "round";
         context.lineWidth = (cellSize * 5) / 100;
         context.strokeStyle = "black";
@@ -61,6 +60,22 @@ export const useCanvasDrawing = () => {
       }
     },
     [context, cellSize]
+  );
+
+  const drawScore = useCallback(
+    (score: number) => {
+      if (context) {
+        context.save();
+        flipYAxis(context);
+        context.font = '16px "Press Start 2P"';
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.fillStyle = "rgba(0, 0, 0, 0.5)";
+        context.fillText(`Score: ${String(score).padStart(4, "0")}`, 15, 15);
+        context.restore();
+      }
+    },
+    [context]
   );
 
   const clearCanvas = useCallback(() => {
@@ -82,6 +97,7 @@ export const useCanvasDrawing = () => {
     canvasRef,
     canvasInfo,
     drawObjects,
+    drawScore,
     clearCanvas,
   };
 };
