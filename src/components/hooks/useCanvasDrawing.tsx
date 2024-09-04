@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { IObjectBody } from "../utils";
+import { IObjectBody } from "../../utils";
 
 export type CanvasInfo = {
   width: number;

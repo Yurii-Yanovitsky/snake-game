@@ -1,10 +1,19 @@
 import { FC, useCallback, useEffect, useState } from "react";
 
-import { useAnimation } from "../hooks/useAnimation";
-import { useCanvasDrawing } from "../hooks/useCanvasDrawing";
-import { useSnake } from "../hooks/useSnake";
+import { useAnimation } from "./hooks/useAnimation";
+import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
+import { useSnake } from "./hooks/useSnake";
+import { PauseOverlay } from "./PauseOverlay";
+import { Instructions } from "./Instructions";
 
 type GameStatus = "NotStarted" | "InProgress" | "Paused" | "Ended";
+
+const StatusOverlay = {
+  NotStarted: <Instructions />,
+  Paused: <PauseOverlay />,
+  InProgress: <></>,
+  Ended: <></>,
+};
 
 const GameBoard: FC<{
   className?: string;
@@ -104,6 +113,7 @@ const GameBoard: FC<{
   return (
     <div className={className}>
       <canvas ref={canvasRef} className="w-full h-full" />
+      {StatusOverlay[gameStatus]}
     </div>
   );
 };

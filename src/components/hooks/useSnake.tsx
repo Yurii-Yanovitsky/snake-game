@@ -6,7 +6,7 @@ import {
   hasSnakeCollided,
   IObjectBody,
   getRandomPosition,
-} from "../utils";
+} from "../../utils";
 import { CanvasInfo } from "./useCanvasDrawing";
 
 const INIT_SNAKE_LENGTH_CELLS = 4;
