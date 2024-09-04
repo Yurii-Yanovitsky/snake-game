@@ -5,9 +5,9 @@ import {
   createSnake,
   hasSnakeCollided,
   IObjectBody,
+  getRandomPosition,
 } from "../utils";
 import { CanvasInfo } from "./useCanvasDrawing";
-import { getRandomPosition } from "../utils";
 
 const INIT_SNAKE_LENGTH_CELLS = 4;
 
@@ -45,7 +45,7 @@ export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
     });
   }, []);
 
-  const setDirection = useCallback((type: string) => {
+  const setDirection = useCallback((type: "Up" | "Down" | "Left" | "Right") => {
     switch (type) {
       case "Up":
         if (directionRef.current.y === 0) {

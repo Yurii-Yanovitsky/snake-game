@@ -37,9 +37,19 @@ const GameBoard: FC<{
     (event: KeyboardEvent) => {
       event.preventDefault();
 
-      if (event.code.includes("Arrow")) {
-        setDirection(event.code.replace("Arrow", ""));
-        return;
+      switch (event.code) {
+        case "KeyW":
+          setDirection("Up");
+          break;
+        case "KeyS":
+          setDirection("Down");
+          break;
+        case "KeyA":
+          setDirection("Left");
+          break;
+        case "KeyD":
+          setDirection("Right");
+          break;
       }
 
       if (event.code === "Space") {
