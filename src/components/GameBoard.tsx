@@ -25,9 +25,9 @@ const GameBoard: FC<{
 
   useEffect(() => {
     clearCanvas();
-    drawObjects([loot], "orange");
+    drawObjects([loot], "#FFD700");
     if (!blinkingToggle) {
-      drawObjects(snake, "green");
+      drawObjects(snake, "#38A169");
     }
     drawScore(score);
   }, [snake, loot, blinkingToggle, score, drawScore, drawObjects, clearCanvas]);
@@ -78,7 +78,7 @@ const GameBoard: FC<{
   const endGame = useCallback(() => {
     const intervalId = window.setInterval(() => {
       setBlinkingToggle((prev) => !prev);
-    }, 150);
+    }, 200);
 
     setTimeout(() => {
       window.clearInterval(intervalId);

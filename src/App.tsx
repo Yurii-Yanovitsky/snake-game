@@ -1,35 +1,6 @@
-import { useCallback, FC, PropsWithChildren, useState } from "react";
-
+import { useCallback, useState } from "react";
 import GameBoard from "./components/GameBoard";
-
-const Heading: FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <h2 className="flex flex-row flex-nowrap items-center my-8">
-      <span
-        className="flex-grow block border-t border-black"
-        aria-hidden="true"
-        role="presentation"
-      ></span>
-      <span className="flex-none block mx-4 px-4 py-2.5 text-xs leading-none font-medium uppercase bg-black text-white">
-        {children}
-      </span>
-      <span
-        className="flex-grow block border-t border-black"
-        aria-hidden="true"
-        role="presentation"
-      ></span>
-    </h2>
-  );
-};
-
-const Instructions = () => {
-  return (
-    <>
-      <Heading>Instructions</Heading>
-      {/* <h2 className="text-center">Press "SPACE" to Start</h2> */}
-    </>
-  );
-};
+import { Instructions } from "./Instructions";
 
 function App() {
   const [gameIndex, setGameIndex] = useState(0);
@@ -39,16 +10,14 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen-min">
-      <Heading>Snake Game</Heading>
+    <div className="flex flex-col gap-6 items-center bg-gray-900 min-h-screen py-8">
+      <h1 className="text-4xl font-bold text-white mb-6">Snake Game</h1>
       <div className="flex-1 flex flex-row justify-center">
-        <Heading>How to Play</Heading>
         <GameBoard
           key={gameIndex}
-          className="h-screen-min-3/4 flex-shrink-0 bg-slate-400 rounded border-black border-2"
+          className="h-screen-min-3/5 bg-gray-[#2D3748] rounded-lg border-black border-4 shadow-2xl"
           onGameEnded={handleGameEnded}
         />
-        <Heading>Score: 100</Heading>
       </div>
       <Instructions />
     </div>
