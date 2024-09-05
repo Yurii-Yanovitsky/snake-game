@@ -4,12 +4,12 @@ import { useAnimation } from "./hooks/useAnimation";
 import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
 import { useSnake } from "./hooks/useSnake";
 import { PauseOverlay } from "./PauseOverlay";
-import { Instructions } from "./Instructions";
+import { InstructionsOverlay } from "./InstructionsOverlay";
 
 type GameStatus = "NotStarted" | "InProgress" | "Paused" | "Ended";
 
 const StatusOverlay = {
-  NotStarted: <Instructions />,
+  NotStarted: <InstructionsOverlay />,
   Paused: <PauseOverlay />,
   InProgress: <></>,
   Ended: <></>,
