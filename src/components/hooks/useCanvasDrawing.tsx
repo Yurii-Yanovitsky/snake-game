@@ -67,7 +67,7 @@ export const useCanvasDrawing = () => {
       if (context) {
         context.save();
         flipYAxis(context);
-        context.font = '24px "Press Start 2P"';
+        context.font = `${cellSize}px "Press Start 2P"`;
         context.textAlign = "left";
         context.textBaseline = "top";
         context.fillStyle = "#FFFFFF";
@@ -75,7 +75,7 @@ export const useCanvasDrawing = () => {
         context.restore();
       }
     },
-    [context]
+    [context, cellSize]
   );
 
   const clearCanvas = useCallback(() => {
@@ -90,7 +90,7 @@ export const useCanvasDrawing = () => {
       height: canvasRef.current.height,
       cellSize,
     }),
-    [canvasRef, cellSize]
+    [cellSize]
   );
 
   return {
