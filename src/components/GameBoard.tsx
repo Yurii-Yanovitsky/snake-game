@@ -47,9 +47,29 @@ const GameBoard: FC<{
     }
   }, [hasColided]);
 
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      event.preventDefault();
+  useEffect(() => {
+    const handleSpacePress = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        setGameStatus((prev) => {
+          if (prev === "Ended") {
+            return prev;
+          }
+
+          return prev === "InProgress" ? "Paused" : "InProgress";
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleSpacePress);
+
+    return () => window.removeEventListener("keydown", handleSpacePress);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (gameStatus === "Paused" || gameStatus === "NotStarted") {
+        return;
+      }
 
       switch (event.code) {
         case "KeyW":
@@ -65,24 +85,12 @@ const GameBoard: FC<{
           setDirection("Right");
           break;
       }
+    };
 
-      if (event.code === "Space") {
-        setGameStatus((prev) => {
-          if (prev === "Ended") {
-            return prev;
-          }
-
-          return prev === "InProgress" ? "Paused" : "InProgress";
-        });
-      }
-    },
-    [setDirection]
-  );
-
-  useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
+
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [handleKeyPress]);
+  }, [gameStatus, setDirection]);
 
   const endGame = useCallback(() => {
     const intervalId = window.setInterval(() => {
