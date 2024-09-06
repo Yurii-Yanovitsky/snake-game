@@ -2,9 +2,14 @@
 
 A classic Snake game built with React and TypeScript. This project features a dynamic game board, smooth animations, and interactive gameplay with keyboard controls.
 
+## Live Demo
+
+Check out the live demo of the game [here](https://yurii-yanovitsky.github.io/snake-game).
+
 ## Table of Contents
 
 - [Snake Game 🐍](#snake-game-)
+  - [Live Demo](#live-demo)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [How to Play](#how-to-play)
