@@ -1,4 +1,4 @@
-export const PauseOverlay = () => {
+const PauseOverlay = () => {
   return (
     <div
       id="pauseOverlay"
@@ -17,3 +17,5 @@ export const PauseOverlay = () => {
     </div>
   );
 };
+
+export default PauseOverlay;

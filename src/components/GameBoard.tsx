@@ -1,129 +1,121 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { IObjectBody } from "../utils";
 
-import { useAnimation } from "./hooks/useAnimation";
-import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
-import { useSnake } from "./hooks/useSnake";
-import { PauseOverlay } from "./PauseOverlay";
-import { InstructionsOverlay } from "./InstructionsOverlay";
+export interface BoardDimensions {
+  width: number;
+  height: number;
+  cellSize: number;
+}
 
-type GameStatus = "NotStarted" | "InProgress" | "Paused" | "Ended";
+interface GameBoardProps {
+  snake: IObjectBody[];
+  loot: IObjectBody;
+  score: number;
+  onDimensions: (dimensions: BoardDimensions) => void;
+}
 
-const StatusOverlay = {
-  NotStarted: <InstructionsOverlay />,
-  Paused: <PauseOverlay />,
-  InProgress: <></>,
-  Ended: <></>,
+const CELL_SIZE_PERCENT = 5;
+
+const flipYAxis = (context: CanvasRenderingContext2D) => {
+  context.transform(1, 0, 0, -1, 0, context.canvas.height);
 };
 
-const GameBoard: FC<{
-  className?: string;
-  onGameEnded?: () => void;
-}> = ({ className, onGameEnded }) => {
-  const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
-  const [blinkingToggle, setBlinkingToggle] = useState(false);
-  const { canvasRef, canvasInfo, drawObjects, drawScore, clearCanvas } =
-    useCanvasDrawing();
-  const { snake, loot, hasColided, score, moveSnake, setDirection } =
-    useSnake(canvasInfo);
+const GameBoard: FC<GameBoardProps> = ({
+  snake,
+  loot,
+  score,
+  onDimensions,
+}) => {
+  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cellSizeRef = useRef(0);
 
-  const updateSnakePosition = useCallback(() => {
-    moveSnake();
-  }, [moveSnake]);
+  const drawObjects = useCallback(
+    (objectBody: IObjectBody[], color: string) => {
+      if (context) {
+        context.save();
+        flipYAxis(context);
+        context.beginPath();
+        context.lineCap = "round";
+        context.lineWidth = (cellSizeRef.current * 5) / 100;
+        context.strokeStyle = "black";
+        context.fillStyle = color;
+        objectBody.forEach((object: IObjectBody) => {
+          context?.rect(
+            object.x,
+            object.y,
+            cellSizeRef.current,
+            cellSizeRef.current
+          );
+        });
+        context?.fill();
+        context?.stroke();
+        context.restore();
+      }
+    },
+    [context]
+  );
 
-  const { start, stop } = useAnimation(10, updateSnakePosition);
+  const drawScore = useCallback(
+    (score: number) => {
+      if (context) {
+        context.save();
+        context.font = `${cellSizeRef.current}px "Press Start 2P"`;
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.fillStyle = "#FFFFFF";
+        const padding = Math.floor(cellSizeRef.current / 2);
+        context.fillText(
+          `Score: ${String(score).padStart(4, "0")}`,
+          padding,
+          padding
+        );
+        context.restore();
+      }
+    },
+    [context]
+  );
+
+  const clearCanvas = useCallback(() => {
+    if (context) {
+      context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    }
+  }, [context]);
 
   useEffect(() => {
     clearCanvas();
     drawObjects([loot], "#FFD700");
-    if (!blinkingToggle) {
-      drawObjects(snake, "#38A169");
-    }
+    drawObjects(snake, "#38A169");
     drawScore(score);
-  }, [snake, loot, blinkingToggle, score, drawScore, drawObjects, clearCanvas]);
+  }, [snake, loot, score, drawScore, drawObjects, clearCanvas]);
 
   useEffect(() => {
-    if (hasColided) {
-      setGameStatus("Ended");
+    if (!canvasRef.current) {
+      return;
     }
-  }, [hasColided]);
 
-  useEffect(() => {
-    const handleSpacePress = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        setGameStatus((prev) => {
-          if (prev === "Ended") {
-            return prev;
-          }
+    const rect = canvasRef.current.getBoundingClientRect();
 
-          return prev === "InProgress" ? "Paused" : "InProgress";
-        });
-      }
-    };
+    const cellSize = Math.floor(
+      (Math.min(rect.width, rect.height) * CELL_SIZE_PERCENT) / 100
+    );
+    canvasRef.current.width = Math.floor(rect.width / cellSize) * cellSize;
+    canvasRef.current.height = Math.floor(rect.height / cellSize) * cellSize;
+    cellSizeRef.current = cellSize;
 
-    window.addEventListener("keydown", handleSpacePress);
+    onDimensions({
+      width: canvasRef.current.width,
+      height: canvasRef.current.height,
+      cellSize,
+    });
 
-    return () => window.removeEventListener("keydown", handleSpacePress);
-  }, []);
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (gameStatus === "Paused" || gameStatus === "NotStarted") {
-        return;
-      }
-
-      switch (event.code) {
-        case "KeyW":
-          setDirection("Up");
-          break;
-        case "KeyS":
-          setDirection("Down");
-          break;
-        case "KeyA":
-          setDirection("Left");
-          break;
-        case "KeyD":
-          setDirection("Right");
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameStatus, setDirection]);
-
-  const endGame = useCallback(() => {
-    const intervalId = window.setInterval(() => {
-      setBlinkingToggle((prev) => !prev);
-    }, 200);
-
-    setTimeout(() => {
-      window.clearInterval(intervalId);
-      onGameEnded?.();
-    }, 2000);
-  }, [onGameEnded]);
-
-  useEffect(() => {
-    switch (gameStatus) {
-      case "InProgress":
-        start();
-        break;
-      case "Paused":
-        stop();
-        break;
-      case "Ended":
-        stop();
-        endGame();
-        break;
+    const canvasContext = canvasRef.current.getContext("2d");
+    if (canvasContext) {
+      setContext(canvasContext);
     }
-  }, [gameStatus, start, stop, endGame]);
+  }, [onDimensions]);
 
-  return (
-    <div className={className}>
-      <canvas ref={canvasRef} className="w-full h-full" />
-      {StatusOverlay[gameStatus]}
-    </div>
-  );
+  return <canvas className="w-full h-full" ref={canvasRef} />;
 };
 
 export default GameBoard;

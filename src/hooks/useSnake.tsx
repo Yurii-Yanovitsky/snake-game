@@ -6,29 +6,51 @@ import {
   hasSnakeCollided,
   IObjectBody,
   getRandomPosition,
-} from "../../utils";
-import { CanvasInfo } from "./useCanvasDrawing";
+} from "../utils";
 
-const INIT_SNAKE_LENGTH_CELLS = 4;
+const INIT_SNAKE_LENGTH_CELLS = 2;
 
-export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
+interface BoardDimensions {
+  width: number;
+  height: number;
+  cellSize: number;
+}
+
+export const useSnake = (onSnakeCollided: () => void) => {
   const [score, setScore] = useState(0);
   const directionRef = useRef({ x: -1, y: 0 });
   const [loot, setLoot] = useState<IObjectBody>({ x: 0, y: 0 });
   const [snake, setSnake] = useState<IObjectBody[]>([{ x: -1, y: -1 }]);
-  const [hasColided, setHasColided] = useState(false);
+
+  const [boardDimensions, setBoardDimensions] = useState<BoardDimensions>({
+    width: 0,
+    height: 0,
+    cellSize: 0,
+  });
 
   const spawnLoot = useCallback(() => {
-    setLoot(getRandomPosition(width, height, cellSize));
-  }, [width, height, cellSize]);
+    setLoot(
+      getRandomPosition(
+        boardDimensions.width,
+        boardDimensions.height,
+        boardDimensions.cellSize
+      )
+    );
+  }, [boardDimensions]);
 
   const moveSnake = useCallback(() => {
     setSnake((prevSnake) => {
       const nextHead = {
-        x: (prevSnake[0].x + directionRef.current.x * cellSize + width) % width,
+        x:
+          (prevSnake[0].x +
+            directionRef.current.x * boardDimensions.cellSize +
+            boardDimensions.width) %
+          boardDimensions.width,
         y:
-          (prevSnake[0].y + directionRef.current.y * cellSize + height) %
-          height,
+          (prevSnake[0].y +
+            directionRef.current.y * boardDimensions.cellSize +
+            boardDimensions.height) %
+          boardDimensions.height,
       };
       const nextSnake = [...prevSnake];
 
@@ -36,7 +58,7 @@ export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
 
       return [nextHead, ...nextSnake];
     });
-  }, [cellSize, width, height]);
+  }, [boardDimensions]);
 
   const growSnake = useCallback(() => {
     setSnake((prevSnake) => {
@@ -72,19 +94,42 @@ export const useSnake = ({ width, height, cellSize }: CanvasInfo) => {
   }, []);
 
   useEffect(() => {
-    setSnake(createSnake(width, height, cellSize, INIT_SNAKE_LENGTH_CELLS));
-    setLoot(getRandomPosition(width, height, cellSize));
-  }, [width, height, cellSize]);
-
-  useEffect(() => {
-    setHasColided(hasSnakeCollided(snake));
+    if (hasSnakeCollided(snake)) {
+      onSnakeCollided();
+    }
 
     if (equalPositions(snake[0], loot)) {
       growSnake();
       spawnLoot();
       setScore((prevVal) => prevVal + 10);
     }
-  }, [loot, snake, spawnLoot, growSnake]);
+  }, [loot, snake, spawnLoot, growSnake, onSnakeCollided]);
 
-  return { score, loot, snake, hasColided, moveSnake, setDirection };
+  const initSnake = useCallback((boardDimensions: BoardDimensions) => {
+    setBoardDimensions(boardDimensions);
+    setSnake(
+      createSnake(
+        boardDimensions.width,
+        boardDimensions.height,
+        boardDimensions.cellSize,
+        INIT_SNAKE_LENGTH_CELLS
+      )
+    );
+    setLoot(
+      getRandomPosition(
+        boardDimensions.width,
+        boardDimensions.height,
+        boardDimensions.cellSize
+      )
+    );
+  }, []);
+
+  return {
+    score,
+    loot,
+    snake,
+    moveSnake,
+    setDirection,
+    initSnake,
+  };
 };
