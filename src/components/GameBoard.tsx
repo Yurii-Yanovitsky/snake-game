@@ -37,7 +37,8 @@ const GameBoard: FC<GameBoardProps> = ({
         flipYAxis(context);
         context.beginPath();
         context.lineCap = "round";
-        context.lineWidth = (cellSizeRef.current * 5) / 100;
+        const lineWidthFactor = 0.05;
+        context.lineWidth = cellSizeRef.current * lineWidthFactor;
         context.strokeStyle = "black";
         context.fillStyle = color;
         objectBody.forEach((object: IObjectBody) => {
