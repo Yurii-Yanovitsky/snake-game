@@ -1,46 +1,150 @@
-# Getting Started with Create React App
+# Snake Game 🐍
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A classic Snake game built with React and TypeScript. This project features a dynamic game board, smooth animations, and interactive gameplay with keyboard controls.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [Snake Game 🐍](#snake-game-)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [How to Play](#how-to-play)
+    - [Controls](#controls)
+  - [Technologies](#technologies)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Project Structure](#project-structure)
+  - [Future Improvements](#future-improvements)
+  - [Contributing](#contributing)
+  - [License](#license)
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Playable Snake game with real-time updates
+- Responsive canvas that adjusts to different screen sizes
+- Pause and resume functionality with spacebar
+- Score tracking and loot spawning
+- Automatically wraps around the edges of the screen
+- Simple collision detection for snake-body and loot interaction.
+- Game Over state with blinking effect
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## How to Play
 
-### `npm test`
+- Press `Space` to start or pause the game.
+- Use the arrow keys to control the snake's direction.
+- The snake grows each time it eats the loot (yellow block).
+- The game ends if the snake collides with itself.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Controls
 
-### `npm run build`
+- **Spacebar**: Start/Pause the game
+- **W**: Move Up
+- **A**: Move Left
+- **S**: Move Down
+- **D**: Move Right
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Technologies
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **React**: Frontend library for building the user interface.
+- **TypeScript**: Superset of JavaScript that adds type safety.
+- **Tailwind CSS**: Utility-first CSS framework for styling.
+- **Canvas API**: Used for rendering game graphics.
 
-### `npm run eject`
+## Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+To get started with the Snake game, follow these steps:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Clone the Repository**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    ```bash
+    git clone https://github.com/your-username/snake-game.git
+    ```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+2. **Navigate to the Project Directory**
 
-## Learn More
+    ```bash
+    cd snake-game
+    ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. **Install Dependencies**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    ```bash
+    npm install
+    ```
+
+## Usage
+
+To start the development server, run:
+
+```bash
+npm start
+```
+
+Open http://localhost:3000 in your browser to play the game.
+
+To build the project for production, run:
+
+```bash
+npm run build
+```
+
+To deploy the built project to GitHub Pages, run:
+
+```bash
+npm run deploy
+```
+
+## Project Structure
+
+- **src/**
+  - **components/**
+    - `GameContainer.tsx`: Manages game state and controls.
+    - `GameBoard.tsx`: Renders the game board and handles canvas drawing.
+    - `PauseOverlay.tsx`: Displays when the game is paused.
+    - `InstructionsOverlay.tsx`: Displays game instructions.
+  - **hooks/**
+    - `useAnimation.ts`: Manages animation frames for smooth movement.
+    - `useSnake.ts`: Handles snake state, movement, and collisions.
+  - **utils/**
+    - `index.ts`: Contains utility functions for game logic.
+  - `App.tsx`: Main application component.
+  - `index.tsx`: Entry point for the React application.
+- **public/**
+  - `index.html`: HTML template for the React app.
+- `package.json`: Project metadata and dependencies.
+- `tsconfig.json`: TypeScript configuration.
+
+## Future Improvements
+
+- Add difficulty levels (e.g., increase snake speed as it grows).
+- Introduce mobile touch support for snake movement.
+
+## Contributing
+
+Feel free to fork this project and open a pull request to contribute. Suggestions and bug reports are welcome!
+
+1. **Fork the Repository**
+
+2. **Create a Feature Branch**
+
+    ```bash
+    git checkout -b feature/new-feature
+    ```
+
+3. **Commit Your Changes**
+
+    ```bash
+    git commit -am 'Add new feature'
+    ```
+
+4. **Push to the Branch**
+
+    ```bash
+    git push origin feature/new-feature
+    ```
+
+5. **Open a Pull Request**
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
