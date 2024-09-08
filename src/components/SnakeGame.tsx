@@ -21,8 +21,8 @@ const SnakeGame = () => {
 
   const handleGameEnded = useCallback((finalScore: number) => {
     setGameRecords((prevValues) => [
-      ...prevValues,
       { recordId: prevValues.length + 1, score: finalScore },
+      ...prevValues,
     ]);
     setGameIndex((val) => val + 1);
   }, []);
@@ -35,7 +35,7 @@ const SnakeGame = () => {
         key={gameIndex}
         onGameEnded={handleGameEnded}
       />
-      <GameRecords gameRecords={gameRecords} />
+      {gameRecords.length > 0 && <GameRecords gameRecords={gameRecords} />}
     </div>
   );
 };
