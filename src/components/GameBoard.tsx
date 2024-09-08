@@ -93,26 +93,24 @@ const GameBoard: FC<GameBoardProps> = ({
   }, [snake, loot, score, drawScore, drawObjects, clearCanvas]);
 
   useEffect(() => {
-    if (!canvasRef.current) {
-      return;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const cellSize = Math.floor(
+        (Math.min(rect.width, rect.height) * CELL_SIZE_PERCENT) / 100
+      );
+      canvasRef.current.width = Math.floor(rect.width / cellSize) * cellSize;
+      canvasRef.current.height = Math.floor(rect.height / cellSize) * cellSize;
+      cellSizeRef.current = cellSize;
+
+      onDimensions({
+        width: canvasRef.current.width,
+        height: canvasRef.current.height,
+        cellSize,
+      });
     }
 
-    const rect = canvasRef.current.getBoundingClientRect();
-
-    const cellSize = Math.floor(
-      (Math.min(rect.width, rect.height) * CELL_SIZE_PERCENT) / 100
-    );
-    canvasRef.current.width = Math.floor(rect.width / cellSize) * cellSize;
-    canvasRef.current.height = Math.floor(rect.height / cellSize) * cellSize;
-    cellSizeRef.current = cellSize;
-
-    onDimensions({
-      width: canvasRef.current.width,
-      height: canvasRef.current.height,
-      cellSize,
-    });
-
-    const canvasContext = canvasRef.current.getContext("2d");
+    const canvasContext = canvasRef.current?.getContext("2d");
     if (canvasContext) {
       setContext(canvasContext);
     }

@@ -3,3 +3,24 @@
 @tailwind utilities;
 
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+@layer components {
+  ::-webkit-scrollbar {
+    @apply w-5;
+    @apply h-5;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 0.4rem solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    -webkit-border-radius: 1rem;
+    @apply bg-gray-700;
+  }
+  ::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+}

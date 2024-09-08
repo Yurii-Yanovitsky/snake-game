@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import GameBoard, { BoardDimensions } from "./GameBoard";
 import PauseOverlay from "./PauseOverlay";
 import InstructionsOverlay from "./InstructionsOverlay";
@@ -7,7 +7,13 @@ import { useAnimation } from "../hooks/useAnimation";
 
 type GameStatus = "NotStarted" | "InProgress" | "Paused" | "Ended";
 
-const GameContainer = ({ onGameEnded }: { onGameEnded: () => void }) => {
+const GameContainer = ({
+  className,
+  onGameEnded,
+}: {
+  className: string;
+  onGameEnded: (finalScore: number) => void;
+}) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
   const [blinkingToggle, setBlinkingToggle] = useState(false);
 
@@ -18,6 +24,9 @@ const GameContainer = ({ onGameEnded }: { onGameEnded: () => void }) => {
   const updateSnakePosition = useCallback(() => moveSnake(), [moveSnake]);
   const { start, stop } = useAnimation(10, updateSnakePosition);
 
+  const scoreRef = useRef(0);
+  scoreRef.current = score;
+
   const endGame = useCallback(() => {
     const intervalId = window.setInterval(() => {
       setBlinkingToggle((prev) => !prev);
@@ -25,7 +34,7 @@ const GameContainer = ({ onGameEnded }: { onGameEnded: () => void }) => {
 
     setTimeout(() => {
       window.clearInterval(intervalId);
-      onGameEnded();
+      onGameEnded(scoreRef.current);
     }, 2000);
   }, [onGameEnded]);
 
@@ -99,7 +108,7 @@ const GameContainer = ({ onGameEnded }: { onGameEnded: () => void }) => {
   }[gameStatus];
 
   return (
-    <div className="h-screen-min-3/5 bg-gray-[#2D3748] rounded-lg border-black border-4 shadow-2xl relative">
+    <div className={className}>
       <GameBoard
         snake={blinkingToggle ? [] : snake}
         loot={loot}
