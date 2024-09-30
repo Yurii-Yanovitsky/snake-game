@@ -63,7 +63,7 @@ const GameBoard: FC<GameBoardProps> = ({
     (score: number) => {
       if (context) {
         context.save();
-        const fontSizeFactor = 0.8;
+        const fontSizeFactor = 0.7;
         const fontSize = fontSizeFactor * cellSize;
         context.font = `${fontSize}px "Press Start 2P"`;
         context.textAlign = "left";
