@@ -1,12 +1,6 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { IObjectBody } from "../utils";
 
-export interface BoardDimensions {
-  width: number;
-  height: number;
-  cellSize: number;
-}
-
 interface GameBoardProps {
   snake: IObjectBody[];
   loot: IObjectBody;

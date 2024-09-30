@@ -7,11 +7,13 @@ import {
 } from "../utils";
 
 const INIT_SNAKE_LENGTH_CELLS = 2;
-export type BoardConfig = {
+
+type BoardConfig = {
   width: number;
   height: number;
   cellSize: number;
 };
+
 type Config = {
   boardConfig: BoardConfig;
   scoreIncrement: number;
