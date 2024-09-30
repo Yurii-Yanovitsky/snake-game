@@ -16,10 +16,6 @@ interface GameBoardProps {
   cellSize: number;
 }
 
-const flipYAxis = (context: CanvasRenderingContext2D) => {
-  context.transform(1, 0, 0, -1, 0, context.canvas.height);
-};
-
 const GameBoard: FC<GameBoardProps> = ({
   snake,
   loot,
@@ -35,7 +31,6 @@ const GameBoard: FC<GameBoardProps> = ({
     (objectBody: IObjectBody[], color: string) => {
       if (context) {
         context.save();
-        flipYAxis(context);
         context.beginPath();
         context.lineCap = "round";
         const lineWidthFactor = 0.1;

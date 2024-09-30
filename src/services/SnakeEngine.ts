@@ -151,10 +151,10 @@ export class SnakeEngine {
     if (this.canChangeDirection(type)) {
       switch (type) {
         case "Up":
-          this.direction = { x: 0, y: 1 };
+          this.direction = { x: 0, y: -1 };
           break;
         case "Down":
-          this.direction = { x: 0, y: -1 };
+          this.direction = { x: 0, y: 1 };
           break;
         case "Left":
           this.direction = { x: -1, y: 0 };
