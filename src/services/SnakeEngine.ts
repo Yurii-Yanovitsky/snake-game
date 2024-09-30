@@ -1,5 +1,5 @@
 import {
-  IObjectBody,
+  IPosition,
   createSnake,
   getRandomPosition,
   equalPositions,
@@ -8,94 +8,96 @@ import {
 
 const INIT_SNAKE_LENGTH_CELLS = 2;
 
-type BoardConfig = {
+type GameBoardConfig = {
   width: number;
   height: number;
   cellSize: number;
 };
 
 type Config = {
-  boardConfig: BoardConfig;
   scoreIncrement: number;
+  movementSpeed: number;
+  gameBoardConfig: GameBoardConfig;
 };
 
 export class SnakeEngine {
-  public currentSnake: IObjectBody[] = [];
+  public snakePosition: IPosition[] = [];
 
-  public targetSnake: IObjectBody[] = [];
+  public nextSnakePosition: IPosition[] = [];
 
-  public loot: IObjectBody = { x: 0, y: 0 };
+  public loot: IPosition = { x: 0, y: 0 };
 
   public score: number = 0;
 
   public direction = { x: -1, y: 0 };
 
-  public onSnakeCollided: (() => void) | null = null;
+  public onSnakeCollision: (() => void) | null = null;
 
-  public onUpdate:
-    | ((
-        newSnakePosition: IObjectBody[],
-        newLoot: IObjectBody,
-        newScore: number
-      ) => void)
+  public onSnakeUpdate:
+    | ((snakePosition: IPosition[], loot: IPosition, score: number) => void)
     | null = null;
 
-  public boardConfig: BoardConfig;
+  public gameBoardConfig: GameBoardConfig;
 
   private scoreIncrement = 0;
 
-  private tween = 0;
+  private movementSpeed = 0;
 
-  constructor({ boardConfig, scoreIncrement }: Config) {
+  private movementProgress = 0;
+
+  constructor({ gameBoardConfig, scoreIncrement, movementSpeed }: Config) {
     this.scoreIncrement = scoreIncrement;
-    this.boardConfig = boardConfig;
+    this.movementSpeed = movementSpeed;
+    this.gameBoardConfig = gameBoardConfig;
     const initSnake = createSnake(
-      boardConfig.width,
-      boardConfig.height,
-      boardConfig.cellSize,
+      gameBoardConfig.width,
+      gameBoardConfig.height,
+      gameBoardConfig.cellSize,
       INIT_SNAKE_LENGTH_CELLS
     );
-    this.currentSnake = [...initSnake];
-    this.targetSnake = [...initSnake];
+    this.snakePosition = [...initSnake];
+    this.nextSnakePosition = [...initSnake];
     this.loot = getRandomPosition(
-      boardConfig.width,
-      boardConfig.height,
-      boardConfig.cellSize
+      gameBoardConfig.width,
+      gameBoardConfig.height,
+      gameBoardConfig.cellSize
     );
   }
 
   public move(direction: "Up" | "Down" | "Left" | "Right") {
-    this.tween += 0.1;
+    this.movementProgress += this.movementSpeed;
 
-    if (this.tween >= 1) {
-      this.tween = 0;
-      this.currentSnake = this.targetSnake;
+    if (this.movementProgress >= 1) {
+      this.movementProgress = 0;
+      this.snakePosition = this.nextSnakePosition;
 
-      if (this.checkIsLootEaten(this.targetSnake)) {
+      if (this.checkIsLootEaten(this.nextSnakePosition)) {
         this.grow();
         this.setNewLoot();
         this.incrementScore();
       }
 
-      this.targetSnake = this.getNextTarget(direction);
+      this.nextSnakePosition = this.getNextTarget(direction);
 
-      if (this.checkIsSnakeColided(this.targetSnake)) {
-        this.onSnakeCollided?.();
+      if (this.checkIsSnakeColided(this.nextSnakePosition)) {
+        this.onSnakeCollision?.();
       }
     }
 
-    const snakePosition = this.getInterpolatedSnake(this.tween);
-    this.onUpdate?.(snakePosition, this.loot, this.score);
+    const interpolatedSnakePosition = this.getInterpolatedSnake(
+      this.movementProgress
+    );
+    this.onSnakeUpdate?.(interpolatedSnakePosition, this.loot, this.score);
   }
 
   private getNextTarget(direction: "Up" | "Down" | "Left" | "Right") {
     this.setDirection(direction);
-    const targetSnake = [...this.currentSnake];
+    const targetSnake = [...this.snakePosition];
     const head = targetSnake[0];
 
     const newHead = this.wrapPosition({
-      x: head.x + this.direction.x * this.boardConfig.cellSize,
-      y: head.y + this.direction.y * this.boardConfig.cellSize,
+      x: head.x + this.direction.x * this.gameBoardConfig.cellSize,
+      y: head.y + this.direction.y * this.gameBoardConfig.cellSize,
     });
 
     targetSnake.unshift(newHead);
@@ -106,29 +108,29 @@ export class SnakeEngine {
 
   private setNewLoot() {
     this.loot = getRandomPosition(
-      this.boardConfig.width,
-      this.boardConfig.height,
-      this.boardConfig.cellSize
+      this.gameBoardConfig.width,
+      this.gameBoardConfig.height,
+      this.gameBoardConfig.cellSize
     );
   }
 
   private grow() {
-    const newTail = { ...this.currentSnake[this.currentSnake.length - 1] };
-    this.currentSnake.push(newTail);
+    const newTail = { ...this.snakePosition[this.snakePosition.length - 1] };
+    this.snakePosition.push(newTail);
   }
 
   private incrementScore() {
     this.score += this.scoreIncrement;
   }
 
-  private checkIsSnakeColided(snake: IObjectBody[]) {
+  private checkIsSnakeColided(snake: IPosition[]) {
     const head = snake[0];
     return snake.some(
       (coord, index) => index !== 0 && equalPositions(head, coord)
     );
   }
 
-  private checkIsLootEaten(snake: IObjectBody[]) {
+  private checkIsLootEaten(snake: IPosition[]) {
     return equalPositions(snake[0], this.loot);
   }
 
@@ -168,70 +170,81 @@ export class SnakeEngine {
     }
   }
 
-  private getInterpolatedSnake = (tween: number) => {
-    let interpolatedSnake: IObjectBody[] = [];
-    this.currentSnake.forEach((segment, index) => {
-      const nextSegment = {
-        x: lerp(segment.x, this.targetSnake[index].x, tween),
-        y: lerp(segment.y, this.targetSnake[index].y, tween),
-      };
+  private getInterpolatedSnake = (movementProgress: number): IPosition[] => {
+    let interpolatedSnake: IPosition[] = [];
 
-      if (
-        Math.abs(this.targetSnake[index].x - segment.x) >
-        this.boardConfig.width / 2
-      ) {
-        if (this.targetSnake[index].x - segment.x > 0) {
-          const currentX = lerp(segment.x, -this.boardConfig.cellSize, tween);
-          const wrappedX = lerp(
-            this.boardConfig.width,
-            this.targetSnake[index].x,
-            tween
-          );
-          interpolatedSnake.push({ x: currentX, y: segment.y });
-          interpolatedSnake.push({ x: wrappedX, y: segment.y });
-        } else {
-          const currentX = lerp(
-            -this.boardConfig.cellSize,
-            this.targetSnake[index].x,
-            tween
-          );
-          const wrappedX = lerp(segment.x, this.boardConfig.width, tween);
-          interpolatedSnake.push({ x: currentX, y: segment.y });
-          interpolatedSnake.push({ x: wrappedX, y: segment.y });
-        }
-      } else if (
-        Math.abs(this.targetSnake[index].y - segment.y) >
-        this.boardConfig.height / 2
-      ) {
-        if (this.targetSnake[index].y - segment.y > 0) {
-          const currentY = lerp(segment.y, -this.boardConfig.cellSize, tween);
-          const wrappedY = lerp(
-            this.boardConfig.height,
-            this.targetSnake[index].y,
-            tween
-          );
-          interpolatedSnake.push({ x: segment.x, y: currentY });
-          interpolatedSnake.push({ x: segment.x, y: wrappedY });
-        } else {
-          const currentY = lerp(
-            -this.boardConfig.cellSize,
-            this.targetSnake[index].y,
-            tween
-          );
-          const wrappedY = lerp(segment.y, this.boardConfig.height, tween);
-          interpolatedSnake.push({ x: segment.x, y: currentY });
-          interpolatedSnake.push({ x: segment.x, y: wrappedY });
-        }
+    this.snakePosition.forEach((segment, index) => {
+      const nextSegment = this.nextSnakePosition[index];
+
+      const interpolatedX = this.getInterpolatedCoordinate(
+        segment.x,
+        nextSegment.x,
+        this.gameBoardConfig.width,
+        movementProgress
+      );
+
+      const interpolatedY = this.getInterpolatedCoordinate(
+        segment.y,
+        nextSegment.y,
+        this.gameBoardConfig.height,
+        movementProgress
+      );
+
+      // If the interpolation resulted in wrapping (returns array), we push both parts
+      if (Array.isArray(interpolatedX)) {
+        interpolatedSnake.push(
+          { x: interpolatedX[0], y: segment.y },
+          { x: interpolatedX[1], y: segment.y }
+        );
+      } else if (Array.isArray(interpolatedY)) {
+        interpolatedSnake.push(
+          { x: segment.x, y: interpolatedY[0] },
+          { x: segment.x, y: interpolatedY[1] }
+        );
       } else {
-        interpolatedSnake.push(nextSegment);
+        // Otherwise, we just push the standard interpolated position
+        interpolatedSnake.push({ x: interpolatedX, y: interpolatedY });
       }
     });
 
     return interpolatedSnake;
   };
 
-  private wrapPosition(position: { x: number; y: number }): IObjectBody {
-    const { width, height } = this.boardConfig;
+  private getInterpolatedCoordinate(
+    current: number,
+    next: number,
+    maxSize: number,
+    progress: number
+  ): number | [number, number] {
+    const distance = next - current;
+
+    // Handle wrapping if the distance is larger than half the board size
+    if (Math.abs(distance) > maxSize / 2) {
+      if (distance > 0) {
+        const currentPosition = lerp(
+          current,
+          -this.gameBoardConfig.cellSize,
+          progress
+        );
+        const wrappedPosition = lerp(maxSize, next, progress);
+        return [currentPosition, wrappedPosition];
+      } else {
+        const currentPosition = lerp(
+          -this.gameBoardConfig.cellSize,
+          next,
+          progress
+        );
+        const wrappedPosition = lerp(current, maxSize, progress);
+        return [currentPosition, wrappedPosition];
+      }
+    }
+
+    // Standard interpolation if no wrapping is needed
+    return lerp(current, next, progress);
+  }
+
+  private wrapPosition(position: { x: number; y: number }): IPosition {
+    const { width, height } = this.gameBoardConfig;
     return {
       x: (position.x + width) % width,
       y: (position.y + height) % height,

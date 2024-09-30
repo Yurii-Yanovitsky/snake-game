@@ -1,9 +1,9 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { IObjectBody } from "../utils";
+import { IPosition } from "../utils";
 
 interface GameBoardProps {
-  snake: IObjectBody[];
-  loot: IObjectBody;
+  snake: IPosition[];
+  loot: IPosition;
   score: number;
   width: number;
   height: number;
@@ -21,8 +21,8 @@ const GameBoard: FC<GameBoardProps> = ({
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const drawObjects = useCallback(
-    (objectBody: IObjectBody[], color: string) => {
+  const drawGameItems = useCallback(
+    (items: IPosition[], color: string) => {
       if (context) {
         context.save();
         context.beginPath();
@@ -31,10 +31,10 @@ const GameBoard: FC<GameBoardProps> = ({
         context.lineWidth = cellSize * lineWidthFactor;
         context.strokeStyle = "black";
         context.fillStyle = color;
-        objectBody.forEach((object: IObjectBody) => {
+        items.forEach((item) => {
           context?.roundRect(
-            object.x,
-            object.y,
+            item.x,
+            item.y,
             cellSize,
             cellSize,
             Math.floor(cellSize * 0.3)
@@ -78,10 +78,10 @@ const GameBoard: FC<GameBoardProps> = ({
 
   useEffect(() => {
     clearCanvas();
-    drawObjects([loot], "#FFD700");
-    drawObjects(snake, "#38A169");
+    drawGameItems([loot], "#FFD700");
+    drawGameItems(snake, "#38A169");
     drawScore(score);
-  }, [snake, loot, score, clearCanvas, drawScore, drawObjects]);
+  }, [snake, loot, score, clearCanvas, drawScore, drawGameItems]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

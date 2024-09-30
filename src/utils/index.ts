@@ -1,6 +1,4 @@
-export interface IObjectBody {
-  oldX?: number;
-  oldY?: number;
+export interface IPosition {
   x: number;
   y: number;
 }
@@ -10,7 +8,7 @@ const generateObject = (
   width: number,
   xOffset = 0,
   yOffset = 0
-): IObjectBody[] => {
+): IPosition[] => {
   return Array.from({ length }).map((_, index) => ({
     x: xOffset + index * width,
     y: yOffset,
@@ -29,18 +27,18 @@ export const createSnake = (
   return generateObject(snakeLength, snakeWidth, midX, midY);
 };
 
-export const equalPositions = (pos1: IObjectBody, pos2: IObjectBody) => {
+export const equalPositions = (pos1: IPosition, pos2: IPosition) => {
   return pos1.x === pos2.x && pos1.y === pos2.y;
 };
 
-export const equalPositionsFloored = (pos1: IObjectBody, pos2: IObjectBody) => {
+export const equalPositionsFloored = (pos1: IPosition, pos2: IPosition) => {
   return (
     Math.floor(pos1.x) === Math.floor(pos2.x) &&
     Math.floor(pos1.y) === Math.floor(pos2.y)
   );
 };
 
-export const hasSnakeCollided = (snake: IObjectBody[]) => {
+export const hasSnakeCollided = (snake: IPosition[]) => {
   const head = snake[0];
   return snake.some(
     (coord, index) => index !== 0 && equalPositions(head, coord)

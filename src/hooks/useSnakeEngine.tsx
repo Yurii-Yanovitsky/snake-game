@@ -6,7 +6,8 @@ export const CELL_SIZE_PERCENT = 5;
 export const useSnakeEngine = (
   width: number,
   height: number,
-  scoreIncrement = 10
+  scoreIncrement: number = 10,
+  movementSpeed: number = 0.1
 ) => {
   return useMemo(() => {
     const cellSize = Math.floor(
@@ -15,11 +16,12 @@ export const useSnakeEngine = (
 
     return new SnakeEngine({
       scoreIncrement,
-      boardConfig: {
+      movementSpeed,
+      gameBoardConfig: {
         width: Math.floor(width / cellSize) * cellSize,
         height: Math.floor(height / cellSize) * cellSize,
         cellSize,
       },
     });
-  }, [width, height, scoreIncrement]);
+  }, [width, height, scoreIncrement, movementSpeed]);
 };

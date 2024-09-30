@@ -21,14 +21,14 @@ const GameContainer = ({
   const snakeEngine = useSnakeEngine(width, height);
   const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
   const [loot, setLoot] = useState(snakeEngine.loot);
-  const [snake, setSnake] = useState(snakeEngine.currentSnake);
+  const [snake, setSnake] = useState(snakeEngine.snakePosition);
   const [score, setScore] = useState(0);
   const directionRef = useRef<"Up" | "Down" | "Left" | "Right">("Right");
   const [blinkingToggle, setBlinkingToggle] = useState(false);
-  
+
   useEffect(() => {
-    snakeEngine.onSnakeCollided = () => setGameStatus("Ended");
-    snakeEngine.onUpdate = (snakePosition, loot, score) => {
+    snakeEngine.onSnakeCollision = () => setGameStatus("Ended");
+    snakeEngine.onSnakeUpdate = (snakePosition, loot, score) => {
       setSnake(snakePosition);
       setLoot(loot);
       setScore(score);
@@ -116,14 +116,14 @@ const GameContainer = ({
     Ended: <></>,
   }[gameStatus];
 
-  const { boardConfig } = snakeEngine;
+  const { gameBoardConfig } = snakeEngine;
 
   return (
     <div className={className}>
       <GameBoard
-        width={boardConfig.width}
-        height={boardConfig.height}
-        cellSize={boardConfig.cellSize}
+        width={gameBoardConfig.width}
+        height={gameBoardConfig.height}
+        cellSize={gameBoardConfig.cellSize}
         snake={blinkingToggle ? [] : snake}
         loot={loot}
         score={score}
