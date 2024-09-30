@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SnakeEngine } from "../services/SnakeEngine";
+import { MovementSpeed, SnakeEngine } from "../services/SnakeEngine";
 
 export const CELL_SIZE_PERCENT = 5;
 
@@ -7,7 +7,7 @@ export const useSnakeEngine = (
   width: number,
   height: number,
   scoreIncrement: number = 10,
-  movementSpeed: number = 0.1
+  movementSpeed: MovementSpeed = 0.1
 ) => {
   return useMemo(() => {
     const cellSize = Math.floor(
