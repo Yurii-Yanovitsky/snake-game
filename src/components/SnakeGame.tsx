@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import GameContainer from "./GameContainer";
 import GameRecords, { GameRecord } from "./GameRecords";
 
-const ADJUST_SIZE_FACTOR = 0.6;
+const GAME_BOARD_SIZE_FACTOR = 0.6;
 
 const SnakeGame = () => {
   const [gameIndex, setGameIndex] = useState(0);
@@ -29,8 +29,8 @@ const SnakeGame = () => {
     setGameIndex((val) => val + 1);
   }, []);
 
-  const width = window.innerWidth * ADJUST_SIZE_FACTOR;
-  const height = window.innerHeight * ADJUST_SIZE_FACTOR;
+  const width = window.innerWidth * GAME_BOARD_SIZE_FACTOR;
+  const height = window.innerHeight * GAME_BOARD_SIZE_FACTOR;
 
   return (
     <div className="grid grid-rows-[auto,auto,minmax(0,1fr)] justify-items-center h-screen bg-gray-900">
