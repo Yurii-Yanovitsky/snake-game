@@ -28,6 +28,7 @@ Check out the live demo of the game [here](https://yurii-yanovitsky.github.io/sn
 - Responsive canvas that adjusts to different screen sizes
 - Pause and resume functionality with spacebar
 - Score tracking and loot spawning
+- Tweening for smooth snake movement
 - Automatically wraps around the edges of the screen
 - Simple collision detection for snake-body and loot interaction.
 - Game Over state with blinking effect
