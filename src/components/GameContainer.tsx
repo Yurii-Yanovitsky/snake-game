@@ -1,42 +1,56 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import GameBoard, { BoardDimensions } from "./GameBoard";
+import GameBoard from "./GameBoard";
 import PauseOverlay from "./PauseOverlay";
 import InstructionsOverlay from "./InstructionsOverlay";
-import { useSnake } from "../hooks/useSnake";
 import { useAnimation } from "../hooks/useAnimation";
+import { useSnakeEngine } from "../hooks/useSnakeEngine";
 
 type GameStatus = "NotStarted" | "InProgress" | "Paused" | "Ended";
 
 const GameContainer = ({
+  width,
+  height,
   className,
   onGameEnded,
 }: {
+  width: number;
+  height: number;
   className: string;
   onGameEnded: (finalScore: number) => void;
 }) => {
+  const snakeEngine = useSnakeEngine(width, height);
   const [gameStatus, setGameStatus] = useState<GameStatus>("NotStarted");
+  const [loot, setLoot] = useState(snakeEngine.loot);
+  const [snake, setSnake] = useState(snakeEngine.currentSnake);
+  const [score, setScore] = useState(0);
+  const directionRef = useRef<"Up" | "Down" | "Left" | "Right">("Right");
   const [blinkingToggle, setBlinkingToggle] = useState(false);
+  
+  useEffect(() => {
+    snakeEngine.onSnakeCollided = () => setGameStatus("Ended");
+    snakeEngine.onUpdate = (snakePosition, loot, score) => {
+      setSnake(snakePosition);
+      setLoot(loot);
+      setScore(score);
+    };
+  }, [snakeEngine]);
 
-  const handleSnakeCollided = useCallback(() => setGameStatus("Ended"), []);
-  const { snake, loot, score, moveSnake, setDirection, initSnake } =
-    useSnake(handleSnakeCollided);
+  const updateSnakePosition = useCallback(() => {
+    snakeEngine.move(directionRef.current);
+  }, [snakeEngine]);
 
-  const updateSnakePosition = useCallback(() => moveSnake(), [moveSnake]);
-  const { start, stop } = useAnimation(10, updateSnakePosition);
+  const { start, stop } = useAnimation(updateSnakePosition);
 
-  const scoreRef = useRef(0);
-  scoreRef.current = score;
-
-  const endGame = useCallback(() => {
+  const handleGameEndWithBlinkingEffect = useCallback(() => {
     const intervalId = window.setInterval(() => {
       setBlinkingToggle((prev) => !prev);
     }, 200);
 
     setTimeout(() => {
       window.clearInterval(intervalId);
-      onGameEnded(scoreRef.current);
+      onGameEnded(snakeEngine.score);
     }, 2000);
-  }, [onGameEnded]);
+  }, [snakeEngine, onGameEnded]);
 
   useEffect(() => {
     switch (gameStatus) {
@@ -48,10 +62,10 @@ const GameContainer = ({
         break;
       case "Ended":
         stop();
-        endGame();
+        handleGameEndWithBlinkingEffect();
         break;
     }
-  }, [gameStatus, start, stop, endGame]);
+  }, [gameStatus, start, stop, handleGameEndWithBlinkingEffect]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -61,27 +75,29 @@ const GameContainer = ({
 
       switch (event.code) {
         case "KeyW":
-          setDirection("Up");
+          directionRef.current = "Up";
           break;
         case "KeyS":
-          setDirection("Down");
+          directionRef.current = "Down";
           break;
         case "KeyA":
-          setDirection("Left");
+          directionRef.current = "Left";
           break;
         case "KeyD":
-          setDirection("Right");
+          directionRef.current = "Right";
           break;
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameStatus, setDirection]);
+  }, [gameStatus]);
 
   useEffect(() => {
     const handleSpacePress = (event: KeyboardEvent) => {
       if (event.code === "Space") {
+        event.preventDefault();
+
         setGameStatus((prev) => {
           if (prev === "Ended") return prev;
           return prev === "InProgress" ? "Paused" : "InProgress";
@@ -93,13 +109,6 @@ const GameContainer = ({
     return () => window.removeEventListener("keydown", handleSpacePress);
   }, []);
 
-  const handleDimensions = useCallback(
-    (boardDimensions: BoardDimensions) => {
-      initSnake(boardDimensions);
-    },
-    [initSnake]
-  );
-
   const StatusOverlay = {
     NotStarted: <InstructionsOverlay />,
     Paused: <PauseOverlay />,
@@ -107,13 +116,17 @@ const GameContainer = ({
     Ended: <></>,
   }[gameStatus];
 
+  const { boardConfig } = snakeEngine;
+
   return (
     <div className={className}>
       <GameBoard
+        width={boardConfig.width}
+        height={boardConfig.height}
+        cellSize={boardConfig.cellSize}
         snake={blinkingToggle ? [] : snake}
         loot={loot}
         score={score}
-        onDimensions={handleDimensions}
       />
       {StatusOverlay}
     </div>

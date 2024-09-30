@@ -1,4 +1,6 @@
 export interface IObjectBody {
+  oldX?: number;
+  oldY?: number;
   x: number;
   y: number;
 }
@@ -31,6 +33,13 @@ export const equalPositions = (pos1: IObjectBody, pos2: IObjectBody) => {
   return pos1.x === pos2.x && pos1.y === pos2.y;
 };
 
+export const equalPositionsFloored = (pos1: IObjectBody, pos2: IObjectBody) => {
+  return (
+    Math.floor(pos1.x) === Math.floor(pos2.x) &&
+    Math.floor(pos1.y) === Math.floor(pos2.y)
+  );
+};
+
 export const hasSnakeCollided = (snake: IObjectBody[]) => {
   const head = snake[0];
   return snake.some(
@@ -52,3 +61,6 @@ export const getRandomPosition = (
     y: randomNumber(graphHeight, cellSize),
   };
 };
+
+export const lerp = (start: number, end: number, t: number) =>
+  start + t * (end - start);
